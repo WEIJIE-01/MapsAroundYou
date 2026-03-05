@@ -10,6 +10,8 @@
 
 ## Component View
 
+![Architecture Diagram](../assets/images/architecture-diagram.png)
+
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                         UI (GUI)                                 │
