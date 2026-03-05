@@ -107,10 +107,10 @@ Immutable-ish entities; lightweight DTOs between layers.
 |--------|--------|
 | **Station** | `stationId: String`, `name: String`, `lines: Set<String>` |
 | **Edge** | `fromStationId: String`, `toStationId: String`, `travelMinutes: int`, `line: String` |
-| **TransitGraph** | `adj: Map<stationId, List<Edge>>` |
+| **TransitGraph** | `adj: Map<String, List<Edge>>` |
 | **RentalListing** | `listingId: String`, `title: String`, `monthlyRent: int`, `hasAircon: boolean`, `nearestStationId: String`, optional: `address`, `roomType`, `notes` |
 | **UserPreferences** | `destinationStationId: String`, `maxRent: int`, `maxCommuteMinutes: int`, `requireAircon: boolean`, `transportMode: enum` (MVP default: MRT) |
-| **CommuteEstimate** | `totalMinutes: int`, `transitMinutes: int`, `walkMinutes: int` (0 for MRT-only MVP), `transfers: int`, `routeStations: List<stationId>` |
+| **CommuteEstimate** | `totalMinutes: int`, `transitMinutes: int`, `walkMinutes: int` (0 for MRT-only MVP), `transfers: int`, `routeStations: List<String>` |
 | **SearchResult** | `listing: RentalListing`, `commute: CommuteEstimate`, `score: double` |
 
 ### 4.2 Relationships

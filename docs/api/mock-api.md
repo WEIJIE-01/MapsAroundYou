@@ -59,7 +59,7 @@ The application uses **local data files** (JSON/CSV) instead of live APIs. This 
 
 ### TransitGraph
 
-- Structure: `adj: Map<stationId, List<Edge>>`
+- Structure: `adj: Map<String, List<Edge>>`
 - Adjacency list representation for Dijkstra shortest path
 
 ---
