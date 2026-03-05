@@ -72,7 +72,7 @@ See [Architecture Overview](./architecture.md) for details.
 **Primary operations**
 
 - `setDestination(stationId)`
-- `setPreferences(maxRent, maxCommuteMins, requireAircon, transportMode)`
+- `setPreferences(maxRent, maxCommuteMinutes, requireAircon, transportMode)`
 - `generateShortlist()` → `List<SearchResult>`
 - `getListingDetails(listingId)` → `ListingDetails`
 - `getCommuteDetails(listingId)` → `CommuteEstimate` (V1.4)
