@@ -1,8 +1,8 @@
 # Product Requirements Document (PRD)
 
-**Product:** MapsAroundYou — Smart Rental Search  
-**Version:** 1.0  
-**Last Updated:** March 5, 2026  
+**Product:** MapsAroundYou — Smart Rental Search
+**Version:** 1.0
+**Last Updated:** March 6, 2026
 **Status:** Active
 
 ---
@@ -113,8 +113,8 @@ As a renter, I want to see a clean output of the best matching listings in a dis
 As a renter, I want the system to reject routes that are primarily walking so that I receive realistic public transport suggestions.
 
 **Acceptance Criteria:**
-- User can set an acceptable walking time per trip segment (default 10 mins).
-- Routes where walking constitutes a disproportionate share of total time (e.g., walking ratio ≤ 0.6 of total time) are rejected.
+- System applies a configured walk-dominant threshold (default 0.6 of total commute time).
+- Routes where the walking ratio (`walkMinutes / totalMinutes`) is greater than or equal to the configured threshold are rejected.
 
 #### US7 — Commute Summary Breakdown
 As a renter, I want to see the commute details split by transit and walking so that I understand the journey better.
@@ -166,7 +166,7 @@ As a renter, I want to select a preset (Student vs. Worker) so that default time
 | ID | Requirement |
 |----|-------------|
 | FR-14 | System provides transit time, walking time, number of transfers, and route stations for each listing. |
-| FR-15 | System flags and rejects listings where the walking ratio (walkMinutes / totalMinutes) exceeds the configured walk-dominant threshold. |
+| FR-15 | System flags and rejects listings where the walking ratio (`walkMinutes / totalMinutes`) is greater than or equal to the configured walk-dominant threshold. |
 
 ### 7.5 Data Freshness Notice
 
@@ -225,7 +225,7 @@ All data is loaded from local files. The MVP transport mode defaults to MRT; wal
 | GUI scope creep | Delivery delays | Minimal screen set: Search + Results + Details dialog |
 | UI–Logic coupling | Integration pain | Strict interfaces + view models; no domain logic in UI |
 | Performance with large listing datasets | Slow search | Cache shortest paths per destination; precompute station-to-destination distances |
-| Ambiguous walk-dominant threshold | Feature disagreement | Define threshold (e.g., `walkMinutes / totalMinutes > T`) in config; document in SDD |
+| Ambiguous walk-dominant threshold | Feature disagreement | Define threshold (e.g., `walkMinutes / totalMinutes >= T`) in config; document in SDD |
 
 ---
 

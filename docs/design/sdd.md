@@ -138,8 +138,9 @@ Immutable-ish entities; lightweight DTOs between layers.
 3. Logic loads listings (Storage).
 4. ListingFilter applies rent + aircon filters.
 5. For each remaining listing: `CommuteEstimator.estimate(listing.nearestStationId, destinationStationId, 'MRT')` — discard if `totalMinutes > maxCommuteMinutes`.
-6. ListingRanker computes score and sorts results.
-7. UI displays ranked results.
+6. In V1.4, `RouteAnalyzer.isWalkDominant()` discards routes where `walkMinutes / totalMinutes` is greater than or equal to the configured threshold.
+7. ListingRanker computes score and sorts results.
+8. UI displays ranked results.
 
 ```mermaid
 flowchart TD
@@ -154,22 +155,26 @@ flowchart TD
     H -- Yes --> J[For each listing: CommuteEstimator.estimate]
     J --> K{totalMinutes > maxCommuteMinutes?}
     K -- Yes --> L[Discard listing]
-    K -- No --> M[Keep listing]
-    L --> N{More listings?}
-    M --> N
-    N -- Yes --> J
-    N -- No --> O{Results non-empty?}
-    O -- None --> I
-    O -- Yes --> P[ListingRanker: sort by commute → rent → listingId]
-    P --> Q[Return SearchResultViewModel list]
-    Q --> R([UI renders ranked results panel])
+    K -- No --> M[RouteAnalyzer.isWalkDominant]
+    M --> N{walkMinutes / totalMinutes >= threshold?}
+    N -- Yes --> O[Discard listing]
+    N -- No --> P[Keep listing]
+    L --> Q{More listings?}
+    O --> Q
+    P --> Q
+    Q -- Yes --> J
+    Q -- No --> R{Results non-empty?}
+    R -- None --> I
+    R -- Yes --> S[ListingRanker: sort by commute → rent → listingId]
+    S --> T[Return SearchResultViewModel list]
+    T --> U([UI renders ranked results panel])
 ```
 
-### Workflow C — Commute Breakdown + Anti-Walk Filter (V1.4)
+### Workflow C — Commute Breakdown (V1.4)
 
 1. User opens listing details (click result).
 2. Logic returns CommuteEstimate + route summary.
-3. `RouteAnalyzer.isWalkDominant()` rejects results if walking dominates (per threshold).
+3. `RouteAnalyzer.summarize()` formats the transit, walking, transfer, and total-time breakdown.
 4. UI displays breakdown: transit vs walking, transfers, total time.
 
 ```mermaid
@@ -178,15 +183,10 @@ flowchart TD
     B --> C[Storage: retrieve listing + CommuteEstimate]
     C --> D{listingId valid?}
     D -- No --> E[/ListingNotFoundException → UI error message/]
-    D -- Yes --> F[RouteAnalyzer.isWalkDominant commuteEstimate]
-    F --> G{walkMinutes / totalMinutes > threshold?}
-    G -- Yes --> H[Flag result: walk-dominant warning shown in UI]
-    G -- No --> I[RouteAnalyzer.summarize commuteEstimate]
-    H --> I
-    I --> J[Return CommuteSummary: transitMinutes, walkMinutes, transfers, total]
-    J --> K([UI renders commute breakdown panel])
+    D -- Yes --> F[RouteAnalyzer.summarize commuteEstimate]
+    F --> G[Return CommuteSummary: transitMinutes, walkMinutes, transfers, total]
+    G --> H([UI renders commute breakdown panel])
 ```
-
 ---
 
 ## 6. Ranking and Scoring (Deterministic)
@@ -234,4 +234,4 @@ score = w1 * (normalizedCommute) + w2 * (normalizedRent)
 | GUI scope creep | Time blow-up | Minimal screens: Search + Results + Details dialog |
 | UI–Logic coupling | Integration pain | Strict interfaces + view models; no domain logic in UI |
 | Performance with many listings | Slow search | Cache shortest paths per destination; precompute station-to-destination distances |
-| Ambiguous "walk-dominant" definition | Feature disagreement | Define threshold (e.g., `walkMinutes/totalMinutes > T`) in config and document it |
+| Ambiguous "walk-dominant" definition | Feature disagreement | Define threshold (e.g., `walkMinutes / totalMinutes >= T`) in config and document it |

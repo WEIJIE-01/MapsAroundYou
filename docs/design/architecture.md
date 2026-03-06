@@ -11,7 +11,6 @@
 ## Component View
 
 ![Architecture Diagram](../assets/images/architecture-diagram.png)
-
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                         UI (GUI)                                 │
@@ -83,7 +82,7 @@
 
 1. **User input** → UI captures destination, max rent, max commute, aircon preference
 2. **Logic** loads data from Storage, invokes Services via pipeline
-3. **ListingFilter** → **CommuteEstimator** → **ListingRanker** → ranked results
+3. **ListingFilter** → **CommuteEstimator** → **RouteAnalyzer** (V1.4) → **ListingRanker** → ranked results
 4. **UI** renders `SearchResultViewModel[]`
 
 ---

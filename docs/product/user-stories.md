@@ -47,8 +47,8 @@
 
 - [ ] **US6 - Anti-walk-dominant Route Filter**
   - **As a** renter, **I want** the system to reject routes that are primarily walking **so that** I receive realistic public transport suggestions.
-  - **AC1:** User can set an acceptable walking time per trip segment (default 10 mins).
-  - **AC2:** Routes where walking ratio is disproportionately high (e.g., <= 0.6 of total time) are rejected.
+  - **AC1:** System applies a configured walk-dominant threshold (default 0.6 of total commute time).
+  - **AC2:** Routes where the walking ratio (`walkMinutes / totalMinutes`) is greater than or equal to the configured threshold are rejected.
 
 - [ ] **US7 - Commute Summary Breakdown**
   - **As a** renter, **I want** to see the commute details split by transit and walking **so that** I understand the journey better.

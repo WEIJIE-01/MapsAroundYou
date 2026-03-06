@@ -19,7 +19,7 @@ This document specifies the operations exposed by the Logic layer for the UI. Al
 
 | Operation | Returns | Description |
 |-----------|---------|-------------|
-| `generateShortlist()` | `List<SearchResult>` | Executes full pipeline: load listings → filter by rent/aircon → estimate commute → filter by max commute → rank and sort. Returns ranked results. |
+| `generateShortlist()` | `List<SearchResult>` | Executes full pipeline: load listings → filter by rent/aircon → estimate commute → reject over-max-commute and walk-dominant routes (V1.4) → rank and sort. Returns ranked results. |
 
 ### Details
 
@@ -56,7 +56,7 @@ These are used by Logic; not directly called by UI.
 
 | Operation | Parameters | Returns | Description |
 |-----------|------------|---------|-------------|
-| `isWalkDominant(commuteEstimate)` | `commuteEstimate: CommuteEstimate` | `boolean` | True if walking dominates (per config threshold) |
+| `isWalkDominant(commuteEstimate)` | `commuteEstimate: CommuteEstimate` | `boolean` | True if `walkMinutes / totalMinutes` is greater than or equal to the configured walk-dominant threshold |
 | `summarize(commuteEstimate)` | `commuteEstimate: CommuteEstimate` | `CommuteSummary` | Returns transit vs walking breakdown, transfers, total time |
 
 ---
