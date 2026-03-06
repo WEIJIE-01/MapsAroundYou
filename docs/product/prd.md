@@ -45,7 +45,6 @@ International students and new working professionals arriving in Singapore face 
 
 **International student or newcomer working professional in Singapore.**
 
-- Commutes mainly between home and a fixed primary destination (university campus or office).
 - Commutes mainly between home and a fixed primary destination (university campus, office, hospital, or common place).
 - Goal is to minimize daily travel time, not to secure a specific postal code.
 - Budget-conscious; typically looking for HDB rooms or small condo units.

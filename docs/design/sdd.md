@@ -37,7 +37,7 @@ Since we use local data, our app will be accurate only up to the last dataset up
 | **UI (GUI)** | Collects inputs from user, displays ranked results, displays listing details + commute breakdown |
 | **Logic** | Sets up the search pipeline and exposes UI-friendly operations |
 | **Services** | CommuteEstimator, ListingFilter, ListingRanker, RouteAnalyzer |
-| **Model** | Entities (Listing, Station, Preferences, Results) |
+| **Model** | Entities (Listing, Destination, Preferences, Results) |
 | **Storage** | Loads local datasets (destinations/travel-times/listings), optional persistence of preferences for improved UX |
 
 See [Architecture Overview](./architecture.md) for details.
@@ -110,7 +110,7 @@ Immutable-ish entities; lightweight DTOs between layers.
 | **TravelTimeMatrix** | `lookup: Map<String, Map<String, TravelTimeRecord>>` |
 | **RentalListing** | `listingId: String`, `title: String`, `monthlyRent: int`, `hasAircon: boolean`, `originNodeId: String`, optional: `address`, `roomType`, `sourcePlatform`, `destinationTags`, `notes` |
 | **UserPreferences** | `destinationId: String`, `maxRent: int`, `maxCommuteMinutes: int`, `requireAircon: boolean`, `transportMode: enum` (MVP default: public transport) |
-| **CommuteEstimate** | `totalMinutes: int`, `transitMinutes: int`, `walkMinutes: int` (0 for MRT-only MVP), `transfers: int`, `routeStations: List<String>` |
+| **CommuteEstimate** | `totalMinutes: int`, `transitMinutes: int`, `walkMinutes: int` (0 for MVP), `transfers: int`, `routeStations: List<String>` |
 | **SearchResult** | `listing: RentalListing`, `commute: CommuteEstimate`, `score: double` |
 
 ### 4.2 Relationships
