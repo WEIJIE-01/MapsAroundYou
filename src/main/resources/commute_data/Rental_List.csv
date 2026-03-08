@@ -1,0 +1,51 @@
+﻿Flat_ID,Postal_Code,Region,Area_Name
+R01,150001,Central,Bukit Merah
+R02,160123,Central,Tiong Bahru
+R03,140050,Central,Queenstown
+R04,141088,Central,Dawson
+R05,310001,Central,Toa Payoh
+R06,310190,Central,Toa Payoh East
+R07,330001,Central,Kallang / Whampoa
+R08,330008,Central,Kallang
+R09,308433,Central,Novena area
+R10,200001,Central,Jalan Besar
+R11,460001,East,Bedok South
+R12,460205,East,Bedok North
+R13,460531,East,Bedok Reservoir
+R14,520101,East,Tampines
+R15,520201,East,Tampines East
+R16,520401,East,Tampines North
+R17,510452,East,Pasir Ris
+R18,510521,East,Pasir Ris
+R19,400001,North-East,MacPherson / Paya Lebar
+R20,428802,East,Marine Parade area
+R21,730001,North,Woodlands
+R22,730101,North,Woodlands South
+R23,730301,North,Woodlands East
+R24,760101,North,Yishun
+R25,760201,North,Yishun Ring
+R26,760666,North,Yishun Ave
+R27,750501,North,Sembawang
+R28,750401,North,Sembawang Drive
+R29,560633,North-East,Yio Chu Kang
+R30,730301,North,Woodlands
+R31,560501,North-East,Ang Mo Kio
+R32,560101,North-East,Ang Mo Kio Ave
+R33,530001,North-East,Hougang
+R34,530201,North-East,Hougang Ave
+R35,820101,North-East,Punggol
+R36,820201,North-East,Punggol Field
+R37,821313,North-East,Punggol Waterway
+R38,540101,North-East,Sengkang
+R39,540201,North-East,Sengkang East
+R40,550101,North-East,Serangoon
+R41,600101,West,Jurong East
+R42,600201,West,Jurong East Ave
+R43,640210,West,Jurong West
+R44,640201,West,Jurong West Ave
+R45,640501,West,Jurong West Central
+R46,120324,West,Clementi Ave
+R47,120301,West,Clementi Ave
+R48,650101,West,Bukit Batok
+R49,650201,West,Bukit Batok East
+R50,680101,West,Choa Chu Kang
