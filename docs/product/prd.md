@@ -9,9 +9,9 @@
 
 ## 1. Overview
 
-MapsAroundYou is a desktop GUI application that helps newcomers to Singapore — primarily international students and new working professionals — find rental listings that fit their budget and commute constraints. Users specify a primary destination (e.g., an MRT station near their campus or office), set filters such as maximum rent and maximum commute time, and receive a ranked shortlist of rental listings that meet their criteria.
+MapsAroundYou is a desktop GUI application that helps newcomers to Singapore — primarily international students and new working professionals — find rental listings that fit their budget and commute constraints. Users specify a primary destination (e.g., a campus, office, hospital, or other landmark such as NUS, NTU, SMU, NUH, or Orchard), set filters such as maximum rent and maximum commute time, and receive a ranked shortlist of rental listings that meet their criteria.
 
-The application runs entirely offline using local datasets for MRT transit graph data and rental listings.
+The application runs entirely offline using local datasets for supported destinations, curated rental listings, and travel-time records.
 
 ---
 
@@ -23,7 +23,7 @@ International students and new working professionals arriving in Singapore face 
 
 ## 3. Goals
 
-- Help users filter rental listings by commute time from a chosen MRT station destination.
+- Help users filter rental listings by commute time from a chosen supported destination.
 - Surface only listings within the user's rent budget and commute time cap.
 - Rank results deterministically so the best options appear first.
 - Provide a breakdown of transit vs. walking time for each shortlisted listing (V1.4).
@@ -45,7 +45,7 @@ International students and new working professionals arriving in Singapore face 
 
 **International student or newcomer working professional in Singapore.**
 
-- Commutes mainly between home and a fixed primary destination (university campus or office).
+- Commutes mainly between home and a fixed primary destination (university campus, office, hospital, or common place).
 - Goal is to minimize daily travel time, not to secure a specific postal code.
 - Budget-conscious; typically looking for HDB rooms or small condo units.
 - Unfamiliar with Singapore's neighbourhoods and transit network.
@@ -67,17 +67,17 @@ International students and new working professionals arriving in Singapore face 
 ### V1.2 — First Feature Increment
 
 #### US1 — Set Primary Destination
-As a renter, I want to set a primary destination (e.g., an MRT station) so that listings can be evaluated by commute distance.
+As a renter, I want to set a primary destination (e.g., NUS, NTU, SMU, NUH, Orchard) so that listings can be evaluated by commute distance.
 
 **Acceptance Criteria:**
 - User can enter a destination via a dropdown or text field in the left input panel.
-- System validates the input against a predefined static Time-Distance Matrix of stations/hubs.
+- System validates the input against a predefined static destination list and corresponding travel-time data.
 
 #### US2 — Filter by Monthly Rent
 As a renter, I want to set a maximum rent limit so that I only see affordable options.
 
 **Acceptance Criteria:**
-- System parses a bundled local static dataset (`listings.json` or `.csv`).
+- System parses a bundled local static dataset of curated housing listings (`listings.json` or `.csv`).
 - Listings with a rent value higher than the user's limit are not processed.
 
 ---
@@ -89,7 +89,7 @@ As a renter, I want to filter listings by a maximum travel time limit so that I 
 
 **Acceptance Criteria:**
 - User can input a maximum travel time in minutes via the GUI.
-- System calculates basic transit time using the pre-calculated matrix and excludes listings exceeding the cap.
+- System looks up basic commute time using the bundled local travel-time matrix and excludes listings exceeding the cap.
 
 #### US4 — Require Air-Conditioning
 As a renter, I want to require air-conditioning so that unsuitable listings are removed.
@@ -137,20 +137,20 @@ As a renter, I want to select a preset (Student vs. Worker) so that default time
 
 | ID | Requirement |
 |----|-------------|
-| FR-01 | User can select a destination MRT station from a predefined list via a dropdown or text field. |
+| FR-01 | User can select a supported destination from a predefined list via a dropdown or text field. |
 | FR-02 | User can set a maximum monthly rent (SGD integer). |
 | FR-03 | User can set a maximum commute time in minutes. |
 | FR-04 | User can toggle an "Air-Con Required" filter. |
-| FR-05 | System validates all inputs before executing a search. Invalid destination station IDs return a user-friendly error. |
+| FR-05 | System validates all inputs before executing a search. Invalid destination IDs return a user-friendly error. |
 
 ### 7.2 Search and Filtering
 
 | ID | Requirement |
 |----|-------------|
-| FR-06 | System loads listings from a local static dataset on search. |
+| FR-06 | System loads curated housing listings from a local static dataset on search. |
 | FR-07 | System excludes listings with `monthlyRent > maxRent`. |
 | FR-08 | System excludes listings without air-con when the aircon filter is enabled. |
-| FR-09 | System computes commute time from each listing's nearest MRT station to the destination using Dijkstra shortest-path on the local transit graph. |
+| FR-09 | System computes commute time from each listing's `originNodeId` to the selected destination using the local travel-time dataset. |
 | FR-10 | System excludes listings where computed `totalMinutes > maxCommuteMinutes`. |
 
 ### 7.3 Ranking and Results Display
@@ -194,23 +194,23 @@ As a renter, I want to select a preset (Student vs. Worker) so that default time
 
 | Entity | Key Fields |
 |--------|------------|
-| **Station** | `stationId`, `name`, `lines` |
-| **Edge** | `fromStationId`, `toStationId`, `travelMinutes`, `line` |
-| **TransitGraph** | Adjacency list: `Map<stationId, List<Edge>>` |
-| **RentalListing** | `listingId`, `title`, `monthlyRent`, `hasAircon`, `nearestStationId`, `address`, `roomType`, `notes` |
-| **UserPreferences** | `destinationStationId`, `maxRent`, `maxCommuteMinutes`, `requireAircon`, `transportMode` |
+| **Destination** | `destinationId`, `name`, `category`, `area` |
+| **TravelTimeRecord** | `originNodeId`, `destinationId`, `totalMinutes`, `transitMinutes`, `walkMinutes`, `transfers`, `source` |
+| **TravelTimeMatrix** | keyed lookup: `Map<originNodeId, Map<destinationId, TravelTimeRecord>>` |
+| **RentalListing** | `listingId`, `title`, `monthlyRent`, `hasAircon`, `originNodeId`, `address`, `roomType`, `sourcePlatform`, `destinationTags`, `notes` |
+| **UserPreferences** | `destinationId`, `maxRent`, `maxCommuteMinutes`, `requireAircon`, `transportMode` |
 | **CommuteEstimate** | `totalMinutes`, `transitMinutes`, `walkMinutes`, `transfers`, `routeStations` |
 | **SearchResult** | `listing`, `commute`, `score` |
 
-All data is loaded from local files. The MVP transport mode defaults to MRT; walking is modelled minimally (V1.4).
+All data is loaded from local files. The MVP transport mode defaults to public transport; walking is modelled minimally (V1.4).
 
 ---
 
 ## 10. Constraints and Assumptions
 
-- Destination must be an MRT station from the finite predefined set.
-- Each listing provides `nearestStationId`; no geocoding is performed.
-- Commute times are approximations derived from transit graph edge weights.
+- Destination must come from the finite supported destination list.
+- Each listing provides an `originNodeId` for commute lookup; no geocoding is performed.
+- Commute times are approximations derived from precomputed local travel-time records, preferably sourced from LTA or equivalent public data.
 - The application must be runnable as a JAR (Java desktop GUI).
 - Data files must be bundled with the application or placed in a known local path.
 
@@ -221,10 +221,10 @@ All data is loaded from local files. The MVP transport mode defaults to MRT; wal
 | Risk | Impact | Mitigation |
 |------|--------|------------|
 | Local dataset incomplete or inconsistent | Empty or incorrect results | Schema validation on load; curated demo dataset; clear load error messages |
-| Routing bugs in shortest-path algorithm | Wrong commute times shown | Unit tests with small, deterministic fixture graphs |
+| Travel-time lookup errors or stale records | Wrong commute times shown | Unit tests with deterministic fixtures; source attribution; dataset freshness metadata |
 | GUI scope creep | Delivery delays | Minimal screen set: Search + Results + Details dialog |
 | UI–Logic coupling | Integration pain | Strict interfaces + view models; no domain logic in UI |
-| Performance with large listing datasets | Slow search | Cache shortest paths per destination; precompute station-to-destination distances |
+| Performance with larger listing datasets | Slow search | Keep curated demo dataset small; index by `originNodeId` and destination |
 | Ambiguous walk-dominant threshold | Feature disagreement | Define threshold (e.g., `walkMinutes / totalMinutes >= T`) in config; document in SDD |
 
 ---
@@ -232,9 +232,7 @@ All data is loaded from local files. The MVP transport mode defaults to MRT; wal
 ## 12. Related Documents
 
 - [User Stories](./user-stories.md)
-- [MVP Scope](./scope-mvp.md)
 - [Architecture Overview](../design/architecture.md)
 - [Software Design Document](../design/sdd.md)
 - [API Specification](../api/api-spec.md)
 - [Mock API / Data Schemas](../api/mock-api.md)
-- [Test Plan](../testing/test-plan.md)

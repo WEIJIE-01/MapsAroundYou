@@ -12,8 +12,8 @@ This document specifies the operations exposed by the Logic layer for the UI. Al
 
 | Operation | Parameters | Description |
 |-----------|------------|-------------|
-| `setDestination(stationId)` | `stationId: String` | Sets the primary destination MRT station in `UserPreferences` |
-| `setPreferences(maxRent, maxCommuteMinutes, requireAircon, transportMode)` | `maxRent: int`, `maxCommuteMinutes: int`, `requireAircon: boolean`, `transportMode: TransportMode` | Updates search constraints; transport mode defaults to MRT for MVP |
+| `setDestination(destinationId)` | `destinationId: String` | Sets the primary destination from the supported destination dataset in `UserPreferences` |
+| `setPreferences(maxRent, maxCommuteMinutes, requireAircon, transportMode)` | `maxRent: int`, `maxCommuteMinutes: int`, `requireAircon: boolean`, `transportMode: TransportMode` | Updates search constraints; transport mode defaults to public transport for MVP |
 
 ### Search
 
@@ -45,7 +45,7 @@ These are used by Logic; not directly called by UI.
 
 | Operation | Parameters | Returns | Description |
 |-----------|------------|---------|-------------|
-| `estimate(fromStationId, toStationId, mode)` | `fromStationId: String`, `toStationId: String`, `mode: TransportMode` | `CommuteEstimate` | Computes shortest path (Dijkstra) on local transit graph |
+| `estimate(originNodeId, destinationId, mode)` | `originNodeId: String`, `destinationId: String`, `mode: TransportMode` | `CommuteEstimate` | Looks up or derives commute time from the local travel-time matrix |
 
 ### ListingRanker
 
@@ -81,7 +81,7 @@ Logic centralizes all error handling. All exceptions are caught and converted to
 | Exception | Thrown By | Condition |
 |-----------|-----------|----------|
 | `InvalidInputException` | Logic | Input fails validation (null, out-of-range, or empty string) |
-| `StationNotFoundException` | Logic, CommuteEstimator | `stationId` not found in loaded station dataset |
+| `DestinationNotFoundException` | Logic, CommuteEstimator | `destinationId` not found in loaded destination dataset |
 | `ListingNotFoundException` | Logic | `listingId` not found in listings dataset |
 | `DataLoadException` | Storage | Data file missing, unreadable, or fails schema validation |
 | `NoResultsException` | Logic | All listings filtered out; shortlist is empty |
@@ -90,19 +90,19 @@ Logic centralizes all error handling. All exceptions are caught and converted to
 
 | Operation | Validation Rule |
 |-----------|----------------|
-| `setDestination(stationId)` | `stationId` must be non-null, non-empty, and present in the station dataset |
+| `setDestination(destinationId)` | `destinationId` must be non-null, non-empty, and present in the destination dataset |
 | `setPreferences(maxRent, ...)` | `maxRent` ≥ 0; `maxCommuteMinutes` ≥ 1; `transportMode` non-null |
 | `generateShortlist()` | Destination must be set; preferences must pass all rules above |
 | `getListingDetails(listingId)` | `listingId` must be non-null and present in the listings dataset |
 | `getCommuteDetails(listingId)` | `listingId` must be non-null; destination must be set |
-| `estimate(fromStationId, toStationId, mode)` | Both station IDs must exist in transit graph; `mode` non-null |
+| `estimate(originNodeId, destinationId, mode)` | `originNodeId` must exist in the travel-time dataset; `destinationId` must exist in the destination dataset; `mode` non-null |
 
 ### UI Feedback Convention
 
 | Exception | User-facing Message |
 |-----------|-------------------|
 | `InvalidInputException` | Inline validation message next to the offending input field |
-| `StationNotFoundException` | "Unknown station. Please select a valid MRT station." |
+| `DestinationNotFoundException` | "Unknown destination. Please select a supported place from the list." |
 | `ListingNotFoundException` | "Listing not found. It may have been removed from the dataset." |
 | `DataLoadException` | "Failed to load data. Please check the application files and restart." |
 | `NoResultsException` | "No listings match your filters. Try relaxing your rent or commute limits." |

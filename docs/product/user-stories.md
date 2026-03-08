@@ -2,7 +2,7 @@
 
 ## Persona
 **Primary:** International student or newcomer working professional in Singapore.
-**Goal:** Commuting mainly between home and a specific destination (campus/office) while minimizing daily travel rather than securing a specific postal code.
+**Goal:** Commuting mainly between home and a specific destination (campus/office/place) while minimizing daily travel rather than securing a specific postal code.
 
 ## Legend
 - **Target Release:** V1.2 (First Increment), V1.3 (Add More Features), V1.4 (Alpha)
@@ -13,13 +13,13 @@
 ## V1.2 - First Feature Increment (Week 9)
 
 - [ ] **US1 - Set Primary Destination**
-  - **As a** renter, **I want** to set a primary destination (e.g., an MRT station) **so that** listings can be evaluated by commute distance.
+  - **As a** renter, **I want** to set a primary destination (e.g., NUS, NTU, SMU, NUH, Orchard) **so that** listings can be evaluated by commute distance.
   - **AC1:** User can enter a destination via a dropdown or text field in the left input panel.
-  - **AC2:** System validates the input against a predefined static Time-Distance Matrix of stations/hubs.
+  - **AC2:** System validates the input against a predefined static destination list and corresponding travel-time data.
 
 - [ ] **US2 - Filter by Monthly Rent**
   - **As a** renter, **I want** to set a maximum rent limit **so that** I only see affordable options.
-  - **AC1:** System parses a bundled local static dataset (`listings.json` or `.csv`).
+  - **AC1:** System parses a bundled local static dataset of curated housing listings (`listings.json` or `.csv`).
   - **AC2:** Listings with a rent value higher than the user's limit are not processed.
 
 ---
@@ -29,7 +29,7 @@
 - [ ] **US3 - Set Commute Time Cap**
   - **As a** renter, **I want** to filter listings by a maximum travel time limit **so that** I can manage my daily travel.
   - **AC1:** User can input a maximum travel time in minutes via the GUI.
-  - **AC2:** System calculates basic transit time using the pre-calculated matrix and excludes listings exceeding the cap.
+  - **AC2:** System looks up basic commute time using the bundled local travel-time matrix and excludes listings exceeding the cap.
 
 - [ ] **US4 - Require Air-Conditioning**
   - **As a** renter, **I want** to require air-conditioning **so that** unsuitable listings are removed.

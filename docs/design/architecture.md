@@ -4,7 +4,7 @@
 
 ## Design Decision
 
-**Local data only** for routing + listings. No live APIs, geocoding, or real-time scraping.
+**Local data only** for destinations, commute-time lookup, and listings. No live APIs, geocoding, or real-time scraping.
 
 ---
 
@@ -14,7 +14,7 @@
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                         UI (GUI)                                 │
-│  • Destination selection (MRT station picker)                    │
+│  • Destination selection (supported destination picker)          │
 │  • Filter inputs (max rent, max commute, require aircon)         │
 │  • Results list/table                                            │
 │  • Details panel/dialog (V1.4: commute breakdown)                │
@@ -34,8 +34,8 @@
 ┌──────────────┐  ┌──────────────┐  ┌──────────────────┐
 │   Services   │  │    Model     │  │     Storage      │
 │              │  │              │  │                  │
-│ CommuteEst.  │  │ Listing      │  │ StationRepo      │
-│ ListingFilter│  │ Station      │  │ TransitGraphRepo │
+│ CommuteEst.  │  │ Listing      │  │ DestinationRepo  │
+│ ListingFilter│  │ Destination  │  │ TravelTimeRepo   │
 │ ListingRanker│  │ Preferences  │  │ ListingRepo      │
 │ RouteAnalyzer│  │ Results      │  │ UserPrefsRepo    │
 └──────────────┘  └──────────────┘  └──────────────────┘
@@ -61,19 +61,19 @@
 
 | Service | Responsibility |
 |---------|----------------|
-| **CommuteEstimator** | Graph shortest path (Dijkstra on transit graph) |
+| **CommuteEstimator** | Local travel-time lookup between listing origin nodes and selected destinations |
 | **ListingFilter** | Rent/time constraints, aircon filter |
 | **ListingRanker** | Scoring + sorting |
 | **RouteAnalyzer** | Walk-dominant detection, commute breakdown (V1.4) |
 
 ### Model
 
-- Entities: `Listing`, `Station`, `Preferences`, `Results`
+- Entities: `Listing`, `Destination`, `Preferences`, `Results`
 - Immutable-ish; lightweight DTOs between layers
 
 ### Storage
 
-- Loads local datasets: stations, edges, listings
+- Loads local datasets: destinations, travel times, listings
 - Optional: persistence of preferences for improved UX
 
 ---

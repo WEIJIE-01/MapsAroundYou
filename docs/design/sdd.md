@@ -6,7 +6,7 @@
 
 ### Goal
 
-A desktop GUI application that helps newcomers to Singapore find rental listings based on a primary destination (e.g., MRT station) and commute constraints, delivered as a runnable JAR.
+A desktop GUI application that helps newcomers to Singapore find rental listings based on a primary destination (e.g., campus, office, hospital, or landmark) and commute constraints, delivered as a runnable JAR.
 
 ### In-scope (by the roadmap)
 
@@ -28,7 +28,7 @@ Since we use local data, our app will be accurate only up to the last dataset up
 
 ## 2. Architecture Overview
 
-**Design decision**: Local data only for routing + listings
+**Design decision**: Local data only for destinations, commute times, and listings
 
 ### Component View
 
@@ -37,8 +37,8 @@ Since we use local data, our app will be accurate only up to the last dataset up
 | **UI (GUI)** | Collects inputs from user, displays ranked results, displays listing details + commute breakdown |
 | **Logic** | Sets up the search pipeline and exposes UI-friendly operations |
 | **Services** | CommuteEstimator, ListingFilter, ListingRanker, RouteAnalyzer |
-| **Model** | Entities (Listing, Station, Preferences, Results) |
-| **Storage** | Loads local datasets (stations/edges/listings), optional persistence of preferences for improved UX |
+| **Model** | Entities (Listing, Destination, Preferences, Results) |
+| **Storage** | Loads local datasets (destinations/travel-times/listings), optional persistence of preferences for improved UX |
 
 See [Architecture Overview](./architecture.md) for details.
 
@@ -50,7 +50,7 @@ See [Architecture Overview](./architecture.md) for details.
 
 **Responsibilities**
 
-- Destination selection UI (MRT station picker)
+- Destination selection UI (supported destination picker)
 - Filter inputs: max rent, max commute mins, require aircon
 - Results list/table: top matches + basic fields
 - Details panel/dialog: full listing + commute breakdown (V1.4)
@@ -71,7 +71,7 @@ See [Architecture Overview](./architecture.md) for details.
 
 **Primary operations**
 
-- `setDestination(stationId)`
+- `setDestination(destinationId)`
 - `setPreferences(maxRent, maxCommuteMinutes, requireAircon, transportMode)`
 - `generateShortlist()` → `List<SearchResult>`
 - `getListingDetails(listingId)` → `ListingDetails`
@@ -82,7 +82,7 @@ See [Architecture Overview](./architecture.md) for details.
 | Service | Operations |
 |---------|------------|
 | **ListingFilter** | `filterByRent(listings, maxRent)`, `filterByAircon(listings, requireAircon)` |
-| **CommuteEstimator** | `estimate(fromStationId, toStationId, mode)` → `CommuteEstimate` — Implementation: Dijkstra (adjacency list) on local transit graph |
+| **CommuteEstimator** | `estimate(originNodeId, destinationId, mode)` → `CommuteEstimate` — Implementation: local travel-time matrix lookup |
 | **ListingRanker** | Deterministic sorting/scoring (see §5) |
 | **RouteAnalyzer** (V1.4) | `isWalkDominant(commuteEstimate)` → `bool`, `summarize(commuteEstimate)` → `CommuteSummary` |
 
@@ -92,8 +92,8 @@ Immutable-ish entities; lightweight DTOs between layers.
 
 ### 3.5 Storage (Local Data)
 
-- `StationRepository` (stations file)
-- `TransitGraphRepository` (edges file)
+- `DestinationRepository` (destinations file)
+- `TravelTimeRepository` (travel-times file)
 - `ListingRepository` (listings file)
 - Optional: `UserPrefsRepository` (save last-used preferences)
 
@@ -105,19 +105,19 @@ Immutable-ish entities; lightweight DTOs between layers.
 
 | Entity | Fields |
 |--------|--------|
-| **Station** | `stationId: String`, `name: String`, `lines: Set<String>` |
-| **Edge** | `fromStationId: String`, `toStationId: String`, `travelMinutes: int`, `line: String` |
-| **TransitGraph** | `adj: Map<String, List<Edge>>` |
-| **RentalListing** | `listingId: String`, `title: String`, `monthlyRent: int`, `hasAircon: boolean`, `nearestStationId: String`, optional: `address`, `roomType`, `notes` |
-| **UserPreferences** | `destinationStationId: String`, `maxRent: int`, `maxCommuteMinutes: int`, `requireAircon: boolean`, `transportMode: enum` (MVP default: MRT) |
-| **CommuteEstimate** | `totalMinutes: int`, `transitMinutes: int`, `walkMinutes: int` (0 for MRT-only MVP), `transfers: int`, `routeStations: List<String>` |
+| **Destination** | `destinationId: String`, `name: String`, `category: String`, `area: String` |
+| **TravelTimeRecord** | `originNodeId: String`, `destinationId: String`, `totalMinutes: int`, optional: `transitMinutes`, `walkMinutes`, `transfers`, `source` |
+| **TravelTimeMatrix** | `lookup: Map<String, Map<String, TravelTimeRecord>>` |
+| **RentalListing** | `listingId: String`, `title: String`, `monthlyRent: int`, `hasAircon: boolean`, `originNodeId: String`, optional: `address`, `roomType`, `sourcePlatform`, `destinationTags`, `notes` |
+| **UserPreferences** | `destinationId: String`, `maxRent: int`, `maxCommuteMinutes: int`, `requireAircon: boolean`, `transportMode: enum` (MVP default: public transport) |
+| **CommuteEstimate** | `totalMinutes: int`, `transitMinutes: int`, `walkMinutes: int` (0 for MVP), `transfers: int`, `routeStations: List<String>` |
 | **SearchResult** | `listing: RentalListing`, `commute: CommuteEstimate`, `score: double` |
 
 ### 4.2 Relationships
 
-- `RentalListing.nearestStationId` → `Station.stationId`
-- `UserPreferences.destinationStationId` → `Station.stationId`
-- TransitGraph contains Stations and Edges
+- `RentalListing.originNodeId` → `TravelTimeRecord.originNodeId`
+- `UserPreferences.destinationId` → `Destination.destinationId`
+- TravelTimeMatrix contains TravelTimeRecords keyed by origin and destination
 - SearchResult composes RentalListing + CommuteEstimate
 
 ---
@@ -126,9 +126,9 @@ Immutable-ish entities; lightweight DTOs between layers.
 
 ### Workflow A — Set Primary Destination (V1.2)
 
-1. User selects destination MRT station in GUI.
-2. UI calls `Logic.setDestination(stationId)`.
-3. Logic stores `destinationStationId` in `UserPreferences`.
+1. User selects a supported destination in the GUI.
+2. UI calls `Logic.setDestination(destinationId)`.
+3. Logic stores `destinationId` in `UserPreferences`.
 4. (Optional) Storage persists preferences for improved UX.
 
 ### Workflow B — Generate Shortlist (MVP V1.3)
@@ -137,7 +137,7 @@ Immutable-ish entities; lightweight DTOs between layers.
 2. UI calls `Logic.generateShortlist()`.
 3. Logic loads listings (Storage).
 4. ListingFilter applies rent + aircon filters.
-5. For each remaining listing: `CommuteEstimator.estimate(listing.nearestStationId, destinationStationId, 'MRT')` — discard if `totalMinutes > maxCommuteMinutes`.
+5. For each remaining listing: `CommuteEstimator.estimate(listing.originNodeId, destinationId, 'PUBLIC_TRANSPORT')` — discard if `totalMinutes > maxCommuteMinutes`.
 6. In V1.4, `RouteAnalyzer.isWalkDominant()` discards routes where `walkMinutes / totalMinutes` is greater than or equal to the configured threshold.
 7. ListingRanker computes score and sorts results.
 8. UI displays ranked results.
@@ -152,7 +152,7 @@ flowchart TD
     F --> G[ListingFilter.filterByAircon]
     G --> H{Any listings remaining?}
     H -- None --> I[/NoResultsException → UI empty-state message/]
-    H -- Yes --> J[For each listing: CommuteEstimator.estimate]
+    H -- Yes --> J[For each listing: CommuteEstimator.estimate via travel-time lookup]
     J --> K{totalMinutes > maxCommuteMinutes?}
     K -- Yes --> L[Discard listing]
     K -- No --> M[RouteAnalyzer.isWalkDominant]
@@ -218,10 +218,10 @@ score = w1 * (normalizedCommute) + w2 * (normalizedRent)
 
 ### Assumptions
 
-- Destination is represented as an MRT station (finite set)
-- Each listing provides `nearestStationId` (no geocoding in MVP)
-- Commute times are approximations derived from local transit graph edge weights
-- MVP transport mode defaults to MRT; walking modeled minimally (V1.4)
+- Destination is represented as a supported campus, office, hospital, or place from a finite list
+- Each listing provides `originNodeId` for travel-time lookup (no geocoding in MVP)
+- Commute times are approximations derived from precomputed local travel-time records
+- MVP transport mode defaults to public transport; walking modeled minimally (V1.4)
 
 ---
 
@@ -230,8 +230,8 @@ score = w1 * (normalizedCommute) + w2 * (normalizedRent)
 | Risk | Impact | Mitigation |
 |------|--------|------------|
 | Local dataset incomplete/inconsistent | Empty/incorrect results | Schema validation + curated demo dataset + clear load errors |
-| Routing bugs (shortest path) | Wrong commute times | Unit tests with small graphs; deterministic fixtures |
+| Travel-time lookup mistakes | Wrong commute times | Unit tests with deterministic fixtures; verify representative origin-destination pairs |
 | GUI scope creep | Time blow-up | Minimal screens: Search + Results + Details dialog |
 | UI–Logic coupling | Integration pain | Strict interfaces + view models; no domain logic in UI |
-| Performance with many listings | Slow search | Cache shortest paths per destination; precompute station-to-destination distances |
+| Performance with many listings | Slow search | Keep demo dataset curated; index travel times by origin and destination |
 | Ambiguous "walk-dominant" definition | Feature disagreement | Define threshold (e.g., `walkMinutes / totalMinutes >= T`) in config and document it |
