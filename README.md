@@ -49,4 +49,6 @@ See [docs/development/fork-workflow.md](docs/development/fork-workflow.md) for d
 
 ## Offline Data Generation
 
-The offline commute matrix generator uses a teammate-local OneMap token via `ONEMAP_TOKEN`. See [docs/ops/build-and-run.md](docs/ops/build-and-run.md) for token setup and regeneration steps.
+Use the unified offline generator at `scripts/generate_merged_listings.py` to append data to `Rental_List.csv`, `listings.csv`, and `transit_matrix.csv` in one run (no API token required, uses distance-based estimation instead of live routing APIs so commute times are approximate).
+
+See [docs/development/DATA_GENERATION_GUIDE.md](docs/development/DATA_GENERATION_GUIDE.md) for random/manual location modes and usage examples.

@@ -129,7 +129,7 @@ L002,Quiet stay near Tiong Bahru,1800,true,R02,Blk 123 Tiong Bahru Road,Condo ro
 - Schema must be validated on load
 - Invalid or missing fields should produce clear load errors
 - Use a curated demo dataset for development and testing
-- Maintain a small but representative listings set, approximately 100 to 180 units across the supported destinations
+- Maintain a small but representative listings set, approximately 100 to 180 units across the supported destinations, which is sufficient for exercising destination coverage and commute-filter behavior without overwhelming test execution time
 - Track source provenance for travel-time records and listing entries where possible
 
 ---
