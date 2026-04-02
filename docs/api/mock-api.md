@@ -101,17 +101,11 @@ L002,Quiet stay near Tiong Bahru,1800,true,R02,Blk 123 Tiong Bahru Road,Condo ro
   "listingId": "L001",
   "title": "City-fringe condo room in Jurong East",
   "monthlyRent": 1850,
-  "title": "City-fringe condo room in Jurong East",
-  "monthlyRent": 1850,
   "hasAircon": true,
   "originNodeId": "R01",
   "address": "Blk 123 Jurong East Street 13",
   "roomType": "Condo room",
-  "originNodeId": "R01",
-  "address": "Blk 123 Jurong East Street 13",
-  "roomType": "Condo room",
   "sourcePlatform": "PropertyGuru",
-  "notes": "Curated demo listing"
   "notes": "Curated demo listing"
 }
 ```

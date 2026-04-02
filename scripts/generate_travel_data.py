@@ -1,19 +1,14 @@
 import csv
 import os
 import time
+import argparse
 from pathlib import Path
 
 import requests
 
 
 ONEMAP_TOKEN = os.getenv("ONEMAP_TOKEN")
-if not ONEMAP_TOKEN:
-    raise RuntimeError(
-        "ONEMAP_TOKEN environment variable is not set. "
-        "Generate a fresh token and export it before running this script."
-    )
-
-HEADERS = {"Authorization": ONEMAP_TOKEN}
+HEADERS = {"Authorization": ONEMAP_TOKEN} if ONEMAP_TOKEN else {}
 RATE_LIMIT_DELAY = 0.2
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = REPO_ROOT / "src" / "main" / "resources" / "commute_data"
@@ -21,6 +16,19 @@ DEST_FILE = DATA_DIR / "Dst_List.csv"
 ORIGIN_NODES_FILE = DATA_DIR / "origin_nodes.csv"
 OUTPUT_CSV = DATA_DIR / "transit_matrix.csv"
 last_request_time = 0.0
+
+
+def configure_auth_headers(token: str | None = None) -> None:
+    """Configure auth headers and fail only when execution actually needs them."""
+    selected_token = token or os.getenv("ONEMAP_TOKEN")
+    if not selected_token:
+        raise RuntimeError(
+            "ONEMAP_TOKEN environment variable is not set. "
+            "Generate a fresh token and export it before running this script."
+        )
+
+    global HEADERS
+    HEADERS = {"Authorization": selected_token}
 
 
 def enforce_rate_limit():
@@ -90,6 +98,7 @@ def get_pt_route(start_coords, end_coords, date="03-09-2026", time_str="08:00:00
                 bus_time_seconds = 0
                 rail_time_seconds = 0
                 transit_distance_meters = 0
+                transit_legs = 0
 
                 for leg in best_route.get("legs", []):
                     mode = leg.get("mode", "").upper()
@@ -97,14 +106,17 @@ def get_pt_route(start_coords, end_coords, date="03-09-2026", time_str="08:00:00
                     leg_distance = leg.get("distance", 0)
 
                     if mode == "BUS":
+                        transit_legs += 1
                         bus_time_seconds += leg_duration
                         transit_distance_meters += leg_distance
                     elif mode in ["SUBWAY", "TRAM", "RAIL", "MRT", "LRT"]:
+                        transit_legs += 1
                         rail_time_seconds += leg_duration
                         transit_distance_meters += leg_distance
 
                 bus_time = int(bus_time_seconds / 60)
                 rail_time = int(rail_time_seconds / 60)
+                transfers = max(0, transit_legs - 1)
 
                 fare_string = best_route.get("fare", "0")
                 try:
@@ -119,11 +131,11 @@ def get_pt_route(start_coords, end_coords, date="03-09-2026", time_str="08:00:00
                     else:
                         fare = round(1.09 + ((transit_distance_km - 3.2) * 0.05), 2)
 
-                return total_time, walk_time, bus_time, rail_time, transit_time, fare
+                return total_time, walk_time, bus_time, rail_time, transit_time, transfers, fare
         else:
             print(f"  [!] PT API Error: {response.text}")
 
-        return -1, -1, -1, -1, -1, 0.0
+        return -1, -1, -1, -1, -1, -1, 0.0
 
 
 def get_drive_walk_cycle_route(start_coords, end_coords, route_type):
@@ -152,6 +164,8 @@ def get_drive_walk_cycle_route(start_coords, end_coords, route_type):
 
 
 def generate_matrix():
+    configure_auth_headers()
+
     dest_coords_map = {}
     print(f"Translating destination postal codes from {DEST_FILE}...")
 
@@ -182,6 +196,7 @@ def generate_matrix():
                 "pt_bus",
                 "pt_rail",
                 "pt_transit",
+                "pt_transfers",
                 "pt_fare",
                 "drive_total",
                 "cycle_total",
@@ -201,7 +216,7 @@ def generate_matrix():
                 continue
 
             for dest_id, dest_coords in dest_coords_map.items():
-                pt_total, pt_walk, pt_bus, pt_rail, pt_transit, pt_fare = get_pt_route(
+                pt_total, pt_walk, pt_bus, pt_rail, pt_transit, pt_transfers, pt_fare = get_pt_route(
                     flat_coords, dest_coords
                 )
                 drive_total = get_drive_walk_cycle_route(flat_coords, dest_coords, "drive")
@@ -217,6 +232,7 @@ def generate_matrix():
                         pt_bus,
                         pt_rail,
                         pt_transit,
+                        pt_transfers,
                         pt_fare,
                         drive_total,
                         cycle_total,
@@ -228,4 +244,11 @@ def generate_matrix():
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description=(
+            "Generate transit_matrix.csv from origin_nodes.csv and Dst_List.csv "
+            "using OneMap APIs."
+        )
+    )
+    parser.parse_args()
     generate_matrix()

@@ -1,5 +1,9 @@
 package mapsaroundyou.logic;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
 import mapsaroundyou.common.AppConfig;
 import mapsaroundyou.common.DestinationNotFoundException;
 import mapsaroundyou.common.InvalidInputException;
@@ -20,10 +24,6 @@ import mapsaroundyou.service.RouteAnalyzer;
 import mapsaroundyou.storage.DatasetMetadataRepository;
 import mapsaroundyou.storage.DestinationRepository;
 import mapsaroundyou.storage.ListingRepository;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
 public class DefaultSearchLogic implements SearchLogic {
     private final DestinationRepository destinationRepository;
@@ -56,6 +56,7 @@ public class DefaultSearchLogic implements SearchLogic {
                 null,
                 0,
                 0,
+                Integer.MAX_VALUE, // default: effectively unlimited transfers
                 false,
                 AppConfig.DEFAULT_TRANSPORT_MODE,
                 AppConfig.DEFAULT_RESULT_LIMIT,
@@ -83,6 +84,7 @@ public class DefaultSearchLogic implements SearchLogic {
                 destinationId.trim(),
                 currentPreferences.maxRent(),
                 currentPreferences.maxCommuteMinutes(),
+                currentPreferences.maxTransfers(),
                 currentPreferences.requireAircon(),
                 currentPreferences.transportMode(),
                 currentPreferences.resultLimit(),
@@ -91,17 +93,23 @@ public class DefaultSearchLogic implements SearchLogic {
     }
 
     @Override
-    public void setPreferences(
-            int maxRent,
-            int maxCommuteMinutes,
-            boolean requireAircon,
-            TransportMode transportMode
-    ) {
+    public void setPreferences(UserPreferences preferences) {
+        if (preferences == null) {
+            throw new InvalidInputException("Search preferences must not be null.");
+        }
+        int maxRent = preferences.maxRent();
+        int maxCommuteMinutes = preferences.maxCommuteMinutes();
+        int maxTransfers = preferences.maxTransfers();
+        boolean requireAircon = preferences.requireAircon();
+        TransportMode transportMode = preferences.transportMode();
         if (maxRent < 0) {
             throw new InvalidInputException("Maximum rent must be at least 0.");
         }
         if (maxCommuteMinutes < 1) {
             throw new InvalidInputException("Maximum commute must be at least 1 minute.");
+        }
+        if (maxTransfers < 0) {
+            throw new InvalidInputException("Maximum transfers must be at least 0.");
         }
         if (transportMode == null) {
             throw new InvalidInputException("Transport mode must not be null.");
@@ -110,10 +118,11 @@ public class DefaultSearchLogic implements SearchLogic {
                 currentPreferences.destinationId(),
                 maxRent,
                 maxCommuteMinutes,
+                maxTransfers,
                 requireAircon,
                 transportMode,
-                AppConfig.DEFAULT_RESULT_LIMIT,
-                false
+            preferences.resultLimit(),
+            preferences.excludeWalkDominantRoutes()
         );
     }
 
@@ -134,6 +143,9 @@ public class DefaultSearchLogic implements SearchLogic {
                     currentPreferences.transportMode()
             );
             if (commute.totalMinutes() > currentPreferences.maxCommuteMinutes()) {
+                continue;
+            }
+            if (commute.transfers() > currentPreferences.maxTransfers()) {
                 continue;
             }
             if (currentPreferences.excludeWalkDominantRoutes() && routeAnalyzer.isWalkDominant(commute)) {

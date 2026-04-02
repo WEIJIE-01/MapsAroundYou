@@ -1,18 +1,18 @@
 package mapsaroundyou.storage;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import mapsaroundyou.common.DataLoadException;
-import mapsaroundyou.model.CommuteEstimate;
-
-import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVRecord;
-
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import mapsaroundyou.common.DataLoadException;
+import mapsaroundyou.model.CommuteEstimate;
 
 public final class CsvTravelTimeRepository implements TravelTimeRepository {
     private static final String[] REQUIRED_HEADERS = {
@@ -21,6 +21,7 @@ public final class CsvTravelTimeRepository implements TravelTimeRepository {
             "pt_total",
             "pt_walk",
             "pt_transit",
+            "pt_transfers",
             "pt_fare"
     };
 
@@ -90,13 +91,19 @@ public final class CsvTravelTimeRepository implements TravelTimeRepository {
                             + originNodeId + " -> " + destinationId);
                 }
 
+                int ptTransfers = CsvSupport.parseRequiredInt(record, "pt_transfers", sourceName);
+                if (ptTransfers < 0) {
+                    throw new DataLoadException("Invalid pt_transfers value (must be non-negative) in "
+                            + sourceName + " for " + originNodeId + " -> " + destinationId + ": " + ptTransfers);
+                }
+
                 CommuteEstimate commuteEstimate = new CommuteEstimate(
                         originNodeId,
                         destinationId,
                         CsvSupport.parseRequiredInt(record, "pt_total", sourceName),
                         CsvSupport.parseRequiredInt(record, "pt_transit", sourceName),
                         CsvSupport.parseRequiredInt(record, "pt_walk", sourceName),
-                        0,
+                        ptTransfers,
                         CsvSupport.parseRequiredDouble(record, "pt_fare", sourceName)
                 );
                 byDestination.put(destinationId, commuteEstimate);

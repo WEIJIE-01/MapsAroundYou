@@ -25,7 +25,7 @@ Interactive mode now stays open for repeated searches until the user types `exit
 Run the flag-driven search mode:
 
 ```powershell
-.\gradlew run --args="search --destination D01 --max-rent 2200 --max-commute 45 --require-aircon"
+.\gradlew run --args="search --destination D01 --max-rent 2200 --max-commute 45 --max-transfers 1 --require-aircon"
 ```
 
 Run the local quality gate:

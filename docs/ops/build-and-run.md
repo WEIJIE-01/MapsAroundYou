@@ -36,12 +36,13 @@ Each search will prompt for:
 - destination id
 - max rent
 - max commute minutes
+- max transfers
 - aircon requirement
 
 ### Run the Flag-Driven CLI
 
 ```powershell
-.\gradlew run --args="search --destination D01 --max-rent 2200 --max-commute 45 --require-aircon"
+.\gradlew run --args="search --destination D01 --max-rent 2200 --max-commute 45 --max-transfers 1 --require-aircon"
 ```
 
 Supported flags:
@@ -49,6 +50,7 @@ Supported flags:
 - `--destination <ID>`
 - `--max-rent <SGD>`
 - `--max-commute <minutes>`
+- `--max-transfers <count>`
 - `--require-aircon`
 
 ### Help Output

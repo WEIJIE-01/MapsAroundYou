@@ -1,5 +1,8 @@
 package mapsaroundyou.gui;
 
+import java.util.List;
+import java.util.Objects;
+
 import javafx.application.Application;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
@@ -31,9 +34,6 @@ import mapsaroundyou.model.DatasetMetadata;
 import mapsaroundyou.model.Destination;
 import mapsaroundyou.model.ListingDetails;
 
-import java.util.List;
-import java.util.Objects;
-
 public final class MapsAroundYouGuiApp extends Application {
     private static final int MIN_WIDTH = 1100;
     private static final int MIN_HEIGHT = 650;
@@ -43,6 +43,7 @@ public final class MapsAroundYouGuiApp extends Application {
     private final ComboBox<Destination> destinationComboBox = new ComboBox<>();
     private final TextField maxRentField = new TextField();
     private final TextField maxCommuteField = new TextField();
+    private final TextField maxTransfersField = new TextField();
     private final CheckBox requireAirconCheckBox = new CheckBox("Require aircon");
     private final Button searchButton = new Button("Search");
 
@@ -107,6 +108,7 @@ public final class MapsAroundYouGuiApp extends Application {
 
         maxRentField.setPromptText("e.g. 1800");
         maxCommuteField.setPromptText("e.g. 45");
+        maxTransfersField.setPromptText("e.g. 1");
 
         GridPane form = new GridPane();
         form.setHgap(8);
@@ -121,6 +123,9 @@ public final class MapsAroundYouGuiApp extends Application {
 
         form.add(new Label("Max commute (minutes)"), 0, row);
         form.add(maxCommuteField, 1, row++);
+
+        form.add(new Label("Max transfers"), 0, row);
+        form.add(maxTransfersField, 1, row++);
 
         form.add(new Label("Aircon"), 0, row);
         form.add(requireAirconCheckBox, 1, row++);
@@ -287,6 +292,7 @@ public final class MapsAroundYouGuiApp extends Application {
                     destination,
                     maxRentField.getText(),
                     maxCommuteField.getText(),
+                    maxTransfersField.getText(),
                     requireAirconCheckBox.isSelected()
             );
         } catch (InvalidInputException exception) {
@@ -363,6 +369,7 @@ public final class MapsAroundYouGuiApp extends Application {
         destinationComboBox.setDisable(busy);
         maxRentField.setDisable(busy);
         maxCommuteField.setDisable(busy);
+        maxTransfersField.setDisable(busy);
         requireAirconCheckBox.setDisable(busy);
         searchButton.setDisable(busy);
         resultsTable.setDisable(busy);

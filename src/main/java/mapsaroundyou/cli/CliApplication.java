@@ -1,11 +1,13 @@
 package mapsaroundyou.cli;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import mapsaroundyou.common.AppConfig;
 import mapsaroundyou.common.InvalidInputException;
 import mapsaroundyou.common.NoResultsException;
 import mapsaroundyou.logic.SearchLogic;
 import mapsaroundyou.model.Destination;
 import mapsaroundyou.model.TransportMode;
+import mapsaroundyou.model.UserPreferences;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -75,12 +77,14 @@ public final class CliApplication {
                 try {
                     int maxRent = parseInteger(prompt(scanner, "Max rent (SGD)"), "Max rent");
                     int maxCommute = parseInteger(prompt(scanner, "Max commute (minutes)"), "Max commute");
+                        int maxTransfers = parseInteger(prompt(scanner, "Max transfers"), "Max transfers");
                     boolean requireAircon = parseYesNo(prompt(scanner, "Require aircon? [y/N]"));
 
                     SearchCommandArguments arguments = new SearchCommandArguments(
                             destinationId,
                             maxRent,
                             maxCommute,
+                            maxTransfers,
                             requireAircon
                     );
                     runSearch(arguments);
@@ -102,12 +106,16 @@ public final class CliApplication {
 
     private int runSearch(SearchCommandArguments arguments) {
         searchLogic.setDestination(arguments.destinationId());
-        searchLogic.setPreferences(
+        searchLogic.setPreferences(new UserPreferences(
+                arguments.destinationId(),
                 arguments.maxRent(),
                 arguments.maxCommuteMinutes(),
+                arguments.maxTransfers(),
                 arguments.requireAircon(),
-                TransportMode.PUBLIC_TRANSPORT
-        );
+                TransportMode.PUBLIC_TRANSPORT,
+                AppConfig.DEFAULT_RESULT_LIMIT,
+                false
+        ));
         cliPrinter.printResults(searchLogic.generateShortlist());
         return 0;
     }

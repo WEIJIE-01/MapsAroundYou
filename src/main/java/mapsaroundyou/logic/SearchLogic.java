@@ -1,14 +1,13 @@
 package mapsaroundyou.logic;
 
+import java.util.List;
+
 import mapsaroundyou.model.CommuteEstimate;
 import mapsaroundyou.model.DatasetMetadata;
 import mapsaroundyou.model.Destination;
 import mapsaroundyou.model.ListingDetails;
 import mapsaroundyou.model.SearchResult;
-import mapsaroundyou.model.TransportMode;
 import mapsaroundyou.model.UserPreferences;
-
-import java.util.List;
 
 public interface SearchLogic {
     List<Destination> getSupportedDestinations();
@@ -17,7 +16,7 @@ public interface SearchLogic {
 
     void setDestination(String destinationId);
 
-    void setPreferences(int maxRent, int maxCommuteMinutes, boolean requireAircon, TransportMode transportMode);
+    void setPreferences(UserPreferences preferences);
 
     List<SearchResult> generateShortlist();
 

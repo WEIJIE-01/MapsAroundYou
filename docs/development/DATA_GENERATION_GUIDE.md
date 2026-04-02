@@ -46,7 +46,7 @@ R05,200150,East,Bedok / Near Bedok MRT
 R06,200160,East,Bedok / Opposite Shopping Mall
 ```
 
-**Important:** The `Flat_ID` will become the `originNodeId` in `listings.csv`.
+**Important:** The `Flat_ID` column in `Rental_List.csv` becomes the `originNodeId` in `listings.csv`.
 
 ### Step 2: Generate App-Facing Listings
 

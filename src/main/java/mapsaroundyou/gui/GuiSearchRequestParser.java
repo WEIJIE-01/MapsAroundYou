@@ -17,6 +17,7 @@ public final class GuiSearchRequestParser {
             Destination destination,
             String maxRentRaw,
             String maxCommuteRaw,
+            String maxTransfersRaw,
             boolean requireAircon
     ) {
         Objects.requireNonNull(destination, "destination");
@@ -25,6 +26,7 @@ public final class GuiSearchRequestParser {
                 destination.destinationId(),
                 parseInt(maxRentRaw, "Max rent", 0),
                 parseInt(maxCommuteRaw, "Max commute", 1),
+                parseInt(maxTransfersRaw, "Max transfers", 0),
                 requireAircon,
                 TransportMode.PUBLIC_TRANSPORT
         );

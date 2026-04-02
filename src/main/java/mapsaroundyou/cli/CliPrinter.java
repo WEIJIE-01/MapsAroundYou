@@ -24,17 +24,23 @@ public class CliPrinter {
         System.out.println("  ./gradlew run");
         System.out.println(
                 "  ./gradlew run --args=\"search --destination D01 --max-rent 2200 "
-                        + "--max-commute 45 --require-aircon\""
+                + "--max-commute 45 --max-transfers 1 --require-aircon\""
         );
         System.out.println("  (On Windows, use '.\\\\gradlew' instead of './gradlew'.)");
         System.out.println();
         System.out.println("Commands:");
-        System.out.println("  search --destination <ID> --max-rent <SGD> --max-commute <minutes> [--require-aircon]");
+        System.out.println(
+            "  search --destination <ID> --max-rent <SGD> --max-commute <minutes> "
+            + "--max-transfers <count> [--require-aircon]"
+        );
         System.out.println("  help");
         System.out.println();
         System.out.println("Examples:");
         System.out.println("  ./gradlew run");
-        System.out.println("  ./gradlew run --args=\"search --destination D05 --max-rent 1800 --max-commute 35\"");
+        System.out.println(
+            "  ./gradlew run --args=\"search --destination D05 --max-rent 1800 "
+                + "--max-commute 35 --max-transfers 1\""
+        );
         System.out.println("  (On Windows, use '.\\\\gradlew' instead of './gradlew'.)");
         System.out.println();
     }
@@ -52,6 +58,7 @@ public class CliPrinter {
 
     public void printInteractiveInstructions() {
         System.out.println("Interactive mode");
+        System.out.println("Prompts: destination, max rent, max commute, max transfers, aircon requirement.");
         System.out.println("Type 'exit' at the destination prompt to quit.");
         System.out.println();
     }

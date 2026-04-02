@@ -12,7 +12,8 @@ public class CliCommandParser {
     private static final java.util.Set<String> VALUE_FLAGS = java.util.Set.of(
             "--destination",
             "--max-rent",
-            "--max-commute"
+            "--max-commute",
+            "--max-transfers"
     );
 
     public ParsedCommand parse(String[] args) {
@@ -61,7 +62,8 @@ public class CliCommandParser {
         String destinationId = requireOption(options, "--destination");
         int maxRent = parsePositiveOrZeroInt(requireOption(options, "--max-rent"), "--max-rent");
         int maxCommute = parsePositiveInt(requireOption(options, "--max-commute"), "--max-commute");
-        return new SearchCommandArguments(destinationId, maxRent, maxCommute, requireAircon);
+        int maxTransfers = parsePositiveOrZeroInt(requireOption(options, "--max-transfers"), "--max-transfers");
+        return new SearchCommandArguments(destinationId, maxRent, maxCommute, maxTransfers, requireAircon);
     }
 
     private static String requireOption(Map<String, String> options, String optionName) {

@@ -13,13 +13,13 @@ This document specifies the operations exposed by the Logic layer for the UI. Al
 | Operation | Parameters | Description |
 |-----------|------------|-------------|
 | `setDestination(destinationId)` | `destinationId: String` | Sets the primary destination from the supported destination dataset in `UserPreferences` |
-| `setPreferences(maxRent, maxCommuteMinutes, requireAircon, transportMode)` | `maxRent: int`, `maxCommuteMinutes: int`, `requireAircon: boolean`, `transportMode: TransportMode` | Updates search constraints; transport mode defaults to public transport for MVP |
+| `setPreferences(maxRent, maxCommuteMinutes, maxTransfers, requireAircon, transportMode)` | `maxRent: int`, `maxCommuteMinutes: int`, `maxTransfers: int`, `requireAircon: boolean`, `transportMode: TransportMode` | Updates search constraints; transport mode defaults to public transport for MVP |
 
 ### Search
 
 | Operation | Returns | Description |
 |-----------|---------|-------------|
-| `generateShortlist()` | `List<SearchResult>` | Executes full pipeline: load listings → filter by rent/aircon → estimate commute → reject over-max-commute and walk-dominant routes (V1.4) → rank and sort. Returns ranked results. |
+| `generateShortlist()` | `List<SearchResult>` | Executes full pipeline: load listings → filter by rent/aircon → estimate commute → reject over-max-commute, over-max-transfers, and walk-dominant routes (V1.4) → rank and sort. Returns ranked results. |
 
 ### Details
 
@@ -91,7 +91,7 @@ Logic centralizes all error handling. All exceptions are caught and converted to
 | Operation | Validation Rule |
 |-----------|----------------|
 | `setDestination(destinationId)` | `destinationId` must be non-null, non-empty, and present in the destination dataset |
-| `setPreferences(maxRent, ...)` | `maxRent` ≥ 0; `maxCommuteMinutes` ≥ 1; `transportMode` non-null |
+| `setPreferences(maxRent, ...)` | `maxRent` ≥ 0; `maxCommuteMinutes` ≥ 1; `maxTransfers` ≥ 0; `transportMode` non-null |
 | `generateShortlist()` | Destination must be set; preferences must pass all rules above |
 | `getListingDetails(listingId)` | `listingId` must be non-null and present in the listings dataset |
 | `getCommuteDetails(listingId)` | `listingId` must be non-null; destination must be set |

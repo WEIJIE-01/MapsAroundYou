@@ -1,17 +1,5 @@
 package mapsaroundyou.cli;
 
-import mapsaroundyou.common.DestinationNotFoundException;
-import mapsaroundyou.logic.SearchLogic;
-import mapsaroundyou.model.CommuteEstimate;
-import mapsaroundyou.model.DatasetMetadata;
-import mapsaroundyou.model.Destination;
-import mapsaroundyou.model.ListingDetails;
-import mapsaroundyou.model.SearchResult;
-import mapsaroundyou.model.TransportMode;
-import mapsaroundyou.model.UserPreferences;
-
-import org.junit.jupiter.api.Test;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -21,6 +9,16 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.Test;
+
+import mapsaroundyou.common.DestinationNotFoundException;
+import mapsaroundyou.logic.SearchLogic;
+import mapsaroundyou.model.CommuteEstimate;
+import mapsaroundyou.model.DatasetMetadata;
+import mapsaroundyou.model.Destination;
+import mapsaroundyou.model.ListingDetails;
+import mapsaroundyou.model.SearchResult;
+import mapsaroundyou.model.UserPreferences;
 
 class CliApplicationTest {
     @Test
@@ -48,7 +46,10 @@ class CliApplicationTest {
 
         OutputCapture outputCapture = new OutputCapture();
         int exitCode = outputCapture.run(() -> cliApplication.run(
-                new String[]{"search", "--destination", "BAD", "--max-rent", "1800", "--max-commute", "35"}));
+                new String[]{
+                    "search", "--destination", "BAD", "--max-rent", "1800",
+                    "--max-commute", "35", "--max-transfers", "1"
+                }));
 
         assertEquals(1, exitCode);
         assertTrue(outputCapture.stderr().contains("Unknown destination."));
@@ -61,10 +62,26 @@ class CliApplicationTest {
 
         OutputCapture outputCapture = new OutputCapture();
         int exitCode = outputCapture.run(() -> cliApplication.run(
-                new String[]{"search", "--destination", "D01", "--max-rentt", "1800", "--max-commute", "35"}));
+                new String[]{
+                    "search", "--destination", "D01", "--max-rentt", "1800",
+                    "--max-commute", "35", "--max-transfers", "1"
+                }));
 
         assertEquals(1, exitCode);
         assertTrue(outputCapture.stderr().contains("Unknown flag: --max-rentt"));
+    }
+
+    @Test
+    void run_missingMaxTransfers_returnsErrorCode() {
+        FakeSearchLogic searchLogic = new FakeSearchLogic();
+        CliApplication cliApplication = new CliApplication(searchLogic, new CliCommandParser(), new CliPrinter());
+
+        OutputCapture outputCapture = new OutputCapture();
+        int exitCode = outputCapture.run(() -> cliApplication.run(
+                new String[]{"search", "--destination", "D01", "--max-rent", "1800", "--max-commute", "35"}));
+
+        assertEquals(1, exitCode);
+        assertTrue(outputCapture.stderr().contains("Missing required flag: --max-transfers"));
     }
 
     @Test
@@ -74,7 +91,7 @@ class CliApplicationTest {
 
         OutputCapture outputCapture = new OutputCapture();
         int exitCode = outputCapture.run(
-                "D01\n1800\n35\ny\nexit\n",
+                "D01\n1800\n35\n1\ny\nexit\n",
                 () -> cliApplication.run(new String[]{})
         );
 
@@ -115,12 +132,7 @@ class CliApplicationTest {
         }
 
         @Override
-        public void setPreferences(
-                int maxRent,
-                int maxCommuteMinutes,
-                boolean requireAircon,
-                TransportMode transportMode
-        ) {
+        public void setPreferences(UserPreferences preferences) {
         }
 
         @Override
