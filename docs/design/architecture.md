@@ -10,7 +10,7 @@
 
 ## Component View
 
-![Architecture — Component Overview](../assets/images/architecture-component.svg)
+![Architecture — Component Overview](../assets/diagram_images/architecture-component.svg)
 
 *Figure: Layer and dependency overview. See the Developer Guide's "Architecture & Coupling" section for the full narrative.*
 

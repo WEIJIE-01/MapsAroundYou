@@ -163,7 +163,7 @@ Immutable-ish entities; lightweight DTOs between layers.
 10. Logic truncates the ranked results to `resultLimit`.
 11. UI displays ranked results.
 
-![Generate Shortlist — Activity](../assets/images/activity-generate-shortlist.svg)
+![Generate Shortlist — Activity](../assets/diagram_images/activity-generate-shortlist.svg)
 
 *Figure: Generate Shortlist activity diagram.*
 
@@ -174,7 +174,7 @@ Immutable-ish entities; lightweight DTOs between layers.
 3. `RouteAnalyzer.summarize()` formats the transit, walking, transfer, and total-time breakdown.
 4. GUI displays breakdown: total time, transit, walking, transfers, and fare.
 
-![Commute Breakdown — Sequence](../assets/images/sequence-commute-breakdown.svg)
+![Commute Breakdown — Sequence](../assets/diagram_images/sequence-commute-breakdown.svg)
 
 *Figure: Commute Breakdown sequence diagram covering listing-absent and destination-unset branches.*
 

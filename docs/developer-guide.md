@@ -56,14 +56,14 @@ Run the local quality gate (Checkstyle + SpotBugs + tests):
 ./gradlew clean check
 ```
 
-Regenerate UML diagrams after editing `docs/assets/images/*.puml`:
+Regenerate UML diagrams after editing `docs/assets/diagram_images/*.puml`:
 
 - Linux / macOS: `bash scripts/render-diagrams.sh`
 - Windows: `scripts\render-diagrams.bat`
 
 ## 3. Architecture
 
-![Architecture — Component Overview](assets/images/architecture-component.svg)
+![Architecture — Component Overview](assets/diagram_images/architecture-component.svg)
 
 The app is a layered JavaFX application. User input flows down the layers through interfaces only:
 
@@ -108,7 +108,7 @@ Issue #46 — low coupling is a first-class design goal. This section documents 
 
 ## 5. Class Diagram
 
-![Class Diagram — System Overview](assets/images/class-diagram.svg)
+![Class Diagram — System Overview](assets/diagram_images/class-diagram.svg)
 
 Highlights:
 
@@ -123,15 +123,15 @@ The diagrams below drill into individual layers.
 
 **GUI layer** — entry points, facade wiring, and helper utilities:
 
-![GUI Class Diagram](assets/images/class-diagram-gui.svg)
+![GUI Class Diagram](assets/diagram_images/class-diagram-gui.svg)
 
 **Logic layer** — `SearchLogic` interface, `DefaultSearchLogic` with 7 injected dependencies, and `PersistentSearchLogic` decorator:
 
-![Logic Class Diagram](assets/images/class-diagram-logic.svg)
+![Logic Class Diagram](assets/diagram_images/class-diagram-logic.svg)
 
 **Storage layer** — repository interfaces and their CSV/properties adapters:
 
-![Storage Class Diagram](assets/images/class-diagram-storage.svg)
+![Storage Class Diagram](assets/diagram_images/class-diagram-storage.svg)
 
 ## 6. Implementation
 
@@ -144,11 +144,11 @@ The diagrams below drill into individual layers.
 
 Activity view:
 
-![Generate Shortlist — Activity](assets/images/activity-generate-shortlist.svg)
+![Generate Shortlist — Activity](assets/diagram_images/activity-generate-shortlist.svg)
 
 Sequence view:
 
-![Generate Shortlist — Sequence](assets/images/sequence-generate-shortlist.svg)
+![Generate Shortlist — Sequence](assets/diagram_images/sequence-generate-shortlist.svg)
 
 Implementation hotspots:
 
@@ -159,7 +159,7 @@ Implementation hotspots:
 
 ### Feature — Commute Breakdown
 
-![Commute Breakdown — Sequence](assets/images/sequence-commute-breakdown.svg)
+![Commute Breakdown — Sequence](assets/diagram_images/sequence-commute-breakdown.svg)
 
 Implementation hotspots:
 
